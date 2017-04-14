@@ -1,11 +1,24 @@
 {
   "name": "augmentedmv",
   "version": "1.0.0",
-  "description": "",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
-  "license": "ISC"
+  "license": "MIT",
+  "dependencies": {
+    "nano": "^6.2.0",
+    "request": "^2.81.0"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/og9d8/csv-to-couchdb.git"
+  },
+  "bugs": {
+    "url": "https://github.com/og9d8/csv-to-couchdb/issues"
+  },
+  "homepage": "https://github.com/og9d8/csv-to-couchdb#readme",
+  "description": ""
 }
