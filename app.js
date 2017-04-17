@@ -7,11 +7,6 @@ var readline = require('readline');
 var stream = require('stream');
 var parse = require('csv-parse');
 
-
-//var instream = fs.createReadStream('./datasample.csv');
-//var outstream = new stream;
-//var rl = readline.createInterface(instream, outstream);
-
 var startTime = Date.now();
 var timeItTook = 0;
 var linesParsed = 0;
@@ -20,55 +15,12 @@ var docsUpdated = 0;
 
 var docRev = 0;
 var docId = 'rabbit5';
-var docbody = {crazy : true, time: "right nowish"}
-
-function updateDocOnCouch(docId) {
-  alice.get(docId, function(err, body) {
-    if (!err) {
-      docRev = body._rev
-      //console.log("rev is:" + docRev);
-      //console.log("crazy is: " + body.crazy)
-      console.log("updateing the doc")
-
-      //alice.insert({ _id: docId, _rev: docRev, docbody }, function(err, body) {
-        docbody._id = docId;
-        docbody._rev = docRev;
-      alice.insert(docbody, function(err, body) {
-        if (!err){
-          console.log("updated the doc");
-
-          //console.log(body);
-        } else {
-          console.log("error updating doc")
-          console.log(err.error);
-          console.log(err.reason);
-
-        }
-      })
-    } else if (err.reason == "missing"){
-      console.log("doc doesn't exist, creating it");
-      alice.insert(docbody, docId, function(err, body) {
-      if (!err){
-        //console.log(body);
-        console.log("doc created")
-      }
-      });
-    } else {
-      //console.log(err);
-      console.log("////////////////////")
-      console.log(err.error)
-      console.log(err.reason)
-    }
-  });
-}
-
-
-
+var docAtHand = {crazy : true, time: "right nowish"}
 
 
 
 /////////////
-///// line by line with callback
+///// line by line 
 var LineByLineReader = require('line-by-line'),
     lr = new LineByLineReader('./datasample2.csv');
 
@@ -84,39 +36,35 @@ lr.on('line', function (line) {
   lr.pause();
   //console.log(line)
   var choppedLine = line.split(',')  
-  //console.log("new ID is: " + choppedLine[0].trim() + "_" + choppedLine[1].trim())
-  //console.log(choppedLine[1])
-  //console.log(choppedLine[2])
-  docId = choppedLine[0].trim() + "_" + choppedLine[1].trim()
+  docId = choppedLine[0].trim() + "_" + choppedLine[1].trim();
+
   alice.get(docId, function(err, body) {
     if (!err) {
-      docRev = body._rev
-      //console.log("rev is:" + docRev);
-      //console.log("crazy is: " + body.crazy)
-      //console.log("updateing the doc")
+        docAtHand._id = docId;
+        docAtHand._rev = body._rev;
+        console.log("that's the rev I got: " + body._rev)
+        console.log("that's the id I got: " + docId)
+        
+        //update the doc
+        alice.insert(docAtHand, function(err, body) {
+          if (!err){
+            console.log("updated the doc");
+            docsUpdated++;
+            lr.resume();
+            //console.log(body);
+          } else {
+            console.log("error updating doc")
+            console.log(err.error);
+            console.log(err.reason);
 
-      //alice.insert({ _id: docId, _rev: docRev, docbody }, function(err, body) {
-        docbody._id = docId;
-        docbody._rev = docRev;
-      alice.insert(docbody, function(err, body) {
-        if (!err){
-          //console.log("updated the doc");
-          docsUpdated++;
-          lr.resume();
-          //console.log(body);
-        } else {
-          console.log("error updating doc")
-          console.log(err.error);
-          console.log(err.reason);
-
-        }
+          }
       })
     } else if (err.reason == "missing"){
-      //console.log("doc doesn't exist, creating it");
-      alice.insert(docbody, docId, function(err, body) {
+      console.log("doc doesn't exist, creating it;")
+      console.log("that's the id I got: " + docId)
+
+      alice.insert(docAtHand, docId, function(err, body) {
       if (!err){
-        //console.log(body);
-        //console.log("doc created")
         docsCreated++;
         lr.resume();
       }
@@ -148,3 +96,47 @@ lr.on('end', function () {
 
 
 });
+
+
+
+// function updateDocOnCouch(docId) {
+//   alice.get(docId, function(err, body) {
+//     if (!err) {
+//       docRev = body._rev
+//       console.log("updateing the doc")
+
+//       //alice.insert({ _id: docId, _rev: docRev, docbody }, function(err, body) {
+//         docbody._id = docId;
+//         docbody._rev = docRev;
+//       alice.insert(docbody, function(err, body) {
+//         if (!err){
+//           console.log("updated the doc");
+
+//           //console.log(body);
+//         } else {
+//           console.log("error updating doc")
+//           console.log(err.error);
+//           console.log(err.reason);
+
+//         }
+//       })
+//     } else if (err.reason == "missing"){
+//       console.log("doc doesn't exist, creating it");
+//       alice.insert(docbody, docId, function(err, body) {
+//       if (!err){
+//         //console.log(body);
+//         console.log("doc created")
+//       }
+//       });
+//     } else {
+//       //console.log(err);
+//       console.log("////////////////////")
+//       console.log(err.error)
+//       console.log(err.reason)
+//     }
+//   });
+// }
+
+
+
+
