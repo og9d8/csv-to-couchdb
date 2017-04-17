@@ -75,7 +75,7 @@ lr.on('line', function (line) {
       console.log(err.error)
       console.log(err.reason)
     }
-  });
+  })
 
 });
 
