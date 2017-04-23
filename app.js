@@ -6,9 +6,8 @@ var dbToUse = 'http://' + config.dbuser + ':' + config.dbpass + '@' + config.dbu
 
 var nano = require('nano')(dbToUse);
 
-//var nano = require('nano')('http://admin:augmentedmv@localhost:5984');
 
-var alice = nano.use('augmentedmv');
+var alice = nano.use('flying_blue_augmented_mv');
  
 var fs = require('fs');
 var readline = require('readline');
@@ -31,25 +30,28 @@ var docAtHand = {}
 ///// line by line 
 console.log("Note: I assume that every csv line is: <lpid>, <memberId>, {some data}")
 var LineByLineReader = require('line-by-line'),
-    lr = new LineByLineReader('./datasample.csv');
+    lr = new LineByLineReader('./1Mlines_Flyingblue.csv.output.csv');
+var logFile = fs.createWriteStream('./log.txt', {  flags: 'a'   })
 
 lr.on('error', function (err) {
-  // 'err' contains error object
 });
 
 lr.on('line', function (line) {
   linesParsed++;
+  logFile.write(linesParsed + '\n')
   //show some movement in case it's long
-  if (linesParsed%100==0) {console.log("Lines parsed so far: " + linesParsed)}
+  if (linesParsed%1000==0) {console.log("Lines parsed so far: " + linesParsed + ". seconds from last checkpoint: " + (Date.now()-startTime)/1000)}
   
   lr.pause();
 
    //parse line
   var choppedLine = line.split(',')  
-  docId = choppedLine[0].trim() + "_" + choppedLine[1].trim();
-  docBody = choppedLine[2]
-  var jsonedBody = JSON.parse(docBody)
-  docAtHand = jsonedBody;
+  docId = choppedLine[1].trim() + "_" + choppedLine[0].trim();
+  //docBody = choppedLine[2]
+  //docBody = {"purchased" : "Y"}
+  //var jsonedBody = JSON.parse(docBody)
+  //docAtHand = jsonedBody;
+  docAtHand = {"purchased" : "Y"}
     
   //see if doc exist
   alice.get(docId, function(err, body) {

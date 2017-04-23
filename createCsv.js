@@ -35,7 +35,7 @@ var newFile = fs.createWriteStream(argv.n, {
 for (var i = 0; i < numOfLines; i++) {
 	numToWrite1 = randomstring.generate(10);
 	numToWrite2 = randomstring.generate(10);
-	newFile.write(numToWrite1 + ", " + numToWrite2 + ', {"eligibility" : "' + randomstring.generate(10) + '"}\n') // append string to your file
+	newFile.write(numToWrite1 + ", " + "33eba759-7f77-4930-926c-472bd52b7497" + ', {"eligibility" : "' + randomstring.generate(10) + '"}\n') // append string to your file
 }
 
 newFile.end()
