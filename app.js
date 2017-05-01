@@ -61,7 +61,7 @@ lr.on('line', function (line) {
       keys[i] = choppedLine[i+2]
     }
     logFile.write("started on  file: " + fileToRead + "\n")
-    logFile.write("keys are: " + keys)
+    logFile.write("keys are: " + keys + "\n")
 
   }
   
@@ -120,13 +120,13 @@ lr.on('line', function (line) {
 
 lr.on('end', function () {
   // All lines are read, file is closed now.
-  console.log("I'm done here")
-  console.log("lines parsed: " + linesParsed)
-  console.log("docsCreated: " + docsCreated)
-  console.log("docsUpdated: " + docsUpdated)
+  console.log("I'm done here, log file is: " + fileToRead + '.log.txt')
+  logFile.write("lines parsed: " + linesParsed + "\n")
+  logFile.write("docsCreated: " + docsCreated + "\n")
+  logFile.write("docsUpdated: " + docsUpdated + "\n")
   timeItTook = Date.now() - startTime;
-  console.log("time it took [seconds]: " + timeItTook/1000)
-  console.log("Time it would take to parse 1 milion lines [hours]: " + (1000000/1000/3600 * timeItTook/linesParsed))
+  logFile.write("time it took [seconds]: " + timeItTook/1000 + "\n")
+  logFile.write("Time it would take to parse 1 milion lines [hours]: " + (1000000/1000/3600 * timeItTook/linesParsed) + "\n")
 
 });
 
