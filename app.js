@@ -7,7 +7,7 @@ var dbToUse = 'http://' + config.dbuser + ':' + config.dbpass + '@' + config.dbu
 var nano = require('nano')(dbToUse);
 
 
-var alice = nano.use('flying_blue_augmented_mv');
+var alice = nano.use('augmentedmv');
  
 var fs = require('fs');
 var readline = require('readline');
@@ -24,35 +24,59 @@ var docRev = 0;
 var docId = 'rabbit5';
 var docAtHand = {}
 
+var fileToRead = "./datasample.csv"
+
+var keys = []
 
 
 /////////////
 ///// line by line 
-console.log("Note: I assume that every csv line is: <lpid>, <memberId>, {some data}")
+console.log("Note: I assume that every csv line is: <lpid>, <memberId>, value1, value2 ...")
 var LineByLineReader = require('line-by-line'),
-    lr = new LineByLineReader('./1Mlines_Flyingblue.csv.output.csv');
-var logFile = fs.createWriteStream('./log.txt', {  flags: 'a'   })
+    lr = new LineByLineReader(fileToRead);
+var logFile = fs.createWriteStream(fileToRead + '.log.txt', {  flags: 'a'   })
 
 lr.on('error', function (err) {
+  console.log(err)
 });
 
 lr.on('line', function (line) {
   linesParsed++;
-  logFile.write(linesParsed + '\n')
   //show some movement in case it's long
-  if (linesParsed%1000==0) {console.log("Lines parsed so far: " + linesParsed + ". seconds from last checkpoint: " + (Date.now()-startTime)/1000)}
+  if (linesParsed%1000==0) {logFile.write("Lines parsed so far: " + linesParsed + ". seconds from last checkpoint: " + (Date.now()-startTime)/1000)}
+  
   
   lr.pause();
 
-   //parse line
-  var choppedLine = line.split(',')  
-  docId = choppedLine[1].trim() + "_" + choppedLine[0].trim();
+   //parse lines
+  var choppedLine = line.split('|')    
+
+
+  docId = choppedLine[0].trim() + "_" + choppedLine[1].trim();
+
+  //Header line
+  if (linesParsed == 1){
+
+    for (var i = 0; i<choppedLine.length-2; i++) {
+      keys[i] = choppedLine[i+2]
+    }
+    logFile.write("started on  file: " + fileToRead + "\n")
+    logFile.write("keys are: " + keys)
+
+  }
+  
+
   //docBody = choppedLine[2]
   //docBody = {"purchased" : "Y"}
   //var jsonedBody = JSON.parse(docBody)
   //docAtHand = jsonedBody;
-  docAtHand = {"purchased" : "Y"}
-    
+  docAtHand = {}
+  docAtHand["augmented_data"] = {}
+  for (var i = 0; i<=keys.length-1;  i++) {
+    docAtHand["augmented_data"][keys[i]] = choppedLine[i+2]
+  }
+
+
   //see if doc exist
   alice.get(docId, function(err, body) {
 
